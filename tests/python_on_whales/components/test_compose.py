@@ -345,7 +345,7 @@ def test_compose_logs_simple_use_case():
     docker.compose.up(detach=True)
     # Wait some seconds to let the container to complete the execution of ping
     # and print the statistics
-    time.sleep(30)
+    time.sleep(15)
     full_output = docker.compose.logs()
     assert "error with my_other_service" in full_output
     assert "--- www.google.com ping statistics ---" in full_output
