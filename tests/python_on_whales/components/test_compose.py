@@ -345,7 +345,7 @@ def test_compose_logs_simple_use_case():
     docker.compose.up(detach=True)
     # Debug code
     containers = docker.compose.ps()
-    containers == []
+    assert containers == []
 
     # Wait some seconds to let the container to complete the execution of ping
     # and print the statistics
