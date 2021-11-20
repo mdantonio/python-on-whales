@@ -378,11 +378,18 @@ def test_compose_logs_follow():
     )
     docker.compose.up(detach=True)
 
+    WAIT_FOR = 15
+
     signal.signal(signal.SIGALRM, mock_KeyboardInterrupt)
-    signal.alarm(15)
+    signal.alarm(WAIT_FOR)
+
+    start = datetime.now()
 
     logs = docker.compose.logs(follow=True)
-    logs = list(logs)
+
+    end = datetime.now()
+
+    assert (end - start).seconds >= WAIT_FOR
 
     assert "error with my_other_service" in logs
     assert "--- www.google.com ping statistics ---" in logs
