@@ -364,8 +364,11 @@ def test_compose_logs_stream():
         ]
     )
     docker.compose.up(detach=True)
-    logs = docker.compose.logs()
+    time.sleep(15)
+    logs = docker.compose.logs(stream=True)
     logs = list(logs)
+    any(["error with my_other_service" in log for log in logs])
+    any(["--- www.google.com ping statistics ---" in log for log in logs])
 
     docker.compose.down(timeout=1)
 
@@ -383,13 +386,13 @@ def test_compose_logs_follow():
 
     start = datetime.now()
 
-    logs = docker.compose.logs(follow=True)
+    full_output = docker.compose.logs(follow=True)
 
     end = datetime.now()
 
     assert (end - start).seconds >= 5
 
-    assert "error with my_other_service" in logs
-    assert "--- www.google.com ping statistics ---" in logs
+    assert "error with my_other_service" in full_output
+    assert "--- www.google.com ping statistics ---" in full_output
 
     docker.compose.down(timeout=1)
