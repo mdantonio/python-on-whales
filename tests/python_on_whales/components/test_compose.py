@@ -386,7 +386,8 @@ def test_compose_logs_follow():
 
     start = datetime.now()
 
-    full_output = docker.compose.logs(follow=True)
+    with pytest.raises(KeyboardInterrupt):
+        full_output = docker.compose.logs(follow=True)
 
     end = datetime.now()
 
