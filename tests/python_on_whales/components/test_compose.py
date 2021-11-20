@@ -386,11 +386,19 @@ def test_compose_logs_follow():
 
     start = datetime.now()
 
-    with pytest.raises(KeyboardInterrupt):
+    try:
         full_output = docker.compose.logs(follow=True)
+        # interrupt the alarm in case the command ends before the timeout
+        signal.alarm(0)
+    # catch and ignore the exception when the command is interruped by the timeout
+    except KeyboardInterrupt:
+        pass
 
     end = datetime.now()
 
+    # 5 seconds because the command can end before the timeout (set to 15 seconds)...
+    # but it is enough to verify that the follow flag was working
+    # otherwise the logs command should completed in much less than 5 seconds
     assert (end - start).seconds >= 5
 
     assert "error with my_other_service" in full_output
