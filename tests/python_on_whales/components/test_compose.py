@@ -1,3 +1,4 @@
+import signal
 import time
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -20,6 +21,10 @@ pytestmark = pytest.mark.skipif(
 docker = DockerClient(
     compose_files=[PROJECT_ROOT / "tests/python_on_whales/components/dummy_compose.yml"]
 )
+
+
+def mock_KeyboardInterrupt(signum, frame):
+    raise KeyboardInterrupt("Time is up")
 
 
 def test_compose_project_name():
@@ -361,5 +366,25 @@ def test_compose_logs_stream():
     docker.compose.up(detach=True)
     logs = docker.compose.logs()
     logs = list(logs)
+
+    docker.compose.down(timeout=1)
+
+
+def test_compose_logs_follow():
+    docker = DockerClient(
+        compose_files=[
+            PROJECT_ROOT / "tests/python_on_whales/components/compose_logs.yml"
+        ]
+    )
+    docker.compose.up(detach=True)
+
+    signal.signal(signal.SIGALRM, mock_KeyboardInterrupt)
+    signal.alarm(15)
+
+    logs = docker.compose.logs(follow=True)
+    logs = list(logs)
+
+    assert "error with my_other_service" in logs
+    assert "--- www.google.com ping statistics ---" in logs
 
     docker.compose.down(timeout=1)
