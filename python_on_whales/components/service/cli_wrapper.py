@@ -345,6 +345,9 @@ class ServiceCLI(DockerCLICaller):
 
         ids_truncated = run(full_cmd).splitlines()
 
+        if not ids_truncated:
+            return []
+
         # the ids are truncated because there is no single docker command that allows us to get them
         # untruncated. We must run an inspect command to get all untruncated ids.
 
